@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 from torch_scatter import scatter_max, scatter_mean, scatter_min, scatter_sum
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint
+from train import train_fn
 from tta import make_predictions
 
 
@@ -40,6 +42,7 @@ else:
     sys.path.append("/kaggle/input/graphnet/graphnet-main/src")
 
 
+CHECKPOINT_CALLBACK = ModelCheckpoint(dirpath=MODEL_CACHE, save_top_k=1, monitor="val_loss")
 
 GLOBAL_POOLINGS = {
     "min": scatter_min,
@@ -57,14 +60,20 @@ _dtype = {
 
 if __name__ == "__main__":
     pl.seed_everything(48, workers=True)
+    
 
-    model_folders = [
-        "20230131-084311",
-    ]
+    if CFG.train:
+        dataset_paths = ['', '', '', '', '']
+        make_train(dataset_paths=, device=CFG.device):
 
-    if KERNEL:
-        dataset_paths = [Path(f"../input/icecube-{f}") for f in model_folders]
     else:
-        dataset_paths = [OUTPUT_PATH / f for f in model_folders]
+        model_folders = [
+            "20230131-084311",
+        ]
 
-    predictions = make_predictions(dataset_paths, mode="test")
+        if KERNEL:
+            dataset_paths = [Path(f"../input/icecube-{f}") for f in model_folders]
+        else:
+            dataset_paths = [OUTPUT_PATH / f for f in model_folders]
+
+        predictions = make_predictions(dataset_paths, mode="test")
